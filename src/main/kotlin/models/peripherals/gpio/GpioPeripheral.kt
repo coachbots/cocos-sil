@@ -1,21 +1,10 @@
-package models.peripherals
+package models.peripherals.gpio
 
-import signals.GpioConfigureSignal
-import signals.GpioSetSignal
-import signals.GpioSignal
+import models.signals.gpio.GpioConfigureSignal
+import models.signals.gpio.GpioSetSignal
+import models.signals.gpio.GpioSignal
 
-enum class GpioDirection { OUT, IN }
-enum class GpioPullMode { UP, DOWN }
-
-data class GpioState(var isHigh: Boolean, val direction: GpioDirection, val pullMode: GpioPullMode) {
-    companion object {
-        fun empty(): GpioState {
-            return GpioState(false, GpioDirection.OUT, GpioPullMode.UP);
-        }
-    }
-}
-
-class Gpio {
+class GpioPeripheral {
     private val gpioMap = Array(NUM_PINS) { GpioState.empty() }
 
     operator fun get(pin: Int): GpioState {

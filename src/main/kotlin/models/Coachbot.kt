@@ -4,15 +4,17 @@ import dev.romainguy.kotlin.math.Float2
 import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.PI
 import dev.romainguy.kotlin.math.times
-import models.peripherals.Gpio
-import kotlin.math.atan
+import models.led.LedModel
+import models.motor.MotorLeftModel
+import models.motor.MotorRightModel
+import models.peripherals.gpio.GpioPeripheral
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-class Coachbot(private val gpioPeripheral: Gpio) {
-    private val leftMotorModel = MotorLeft(gpioPeripheral)
-    private val rightMotorModel = MotorRight(gpioPeripheral)
+class Coachbot(private val gpioPeripheral: GpioPeripheral) {
+    private val leftMotorModel = MotorLeftModel(gpioPeripheral)
+    private val rightMotorModel = MotorRightModel(gpioPeripheral)
     private val ledModel = LedModel(gpioPeripheral)
 
     var posCenter = Float2(0F, 0F)

@@ -1,11 +1,9 @@
-package models
+package models.led
 
 import dev.romainguy.kotlin.math.Float3
-import models.peripherals.Gpio
+import models.peripherals.gpio.GpioPeripheral
 
-interface ILedModel {}
-
-class LedModel(private val gpio: Gpio) {
+class LedModel(private val gpio: GpioPeripheral) {
     var color = Float3(0F, 0F, 0F)
 
     // TODO: These might overflow for extremely high tick rates.

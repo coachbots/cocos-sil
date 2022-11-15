@@ -1,13 +1,20 @@
 package models.peripherals
 
 import interfaces.IRunsOnTick
-import signals.Signal
+import models.peripherals.gpio.GpioPeripheral
+import models.signals.ISignal
+import models.signals.gpio.GpioSignal
 import java.io.File
-import java.io.InputStream
 
 class PeripheralManager(private val gpioStream: File) : IRunsOnTick {
-    val gpio = Gpio()
+    val gpio = GpioPeripheral()
 
     override fun onTick(tickBegin: ULong, tickEnd: ULong) {
+    }
+
+    fun onSignal(timestamp: Float, signal: ISignal) {
+        when(signal) {
+            is GpioSignal -> { gpio.onSignal(signal) }
+        }
     }
 }
