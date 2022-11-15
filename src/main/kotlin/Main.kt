@@ -11,10 +11,10 @@ import models.peripherals.PeripheralManager
 import models.signals.SignalMessage
 import mu.KotlinLogging
 import sun.misc.Signal
+import java.io.BufferedReader
 import java.io.File
 
-class SignalStreamParser(gpioStream: File, private val peripheralManager: PeripheralManager) {
-    private val reader = gpioStream.bufferedReader()
+class SignalStreamParser(private val reader: BufferedReader, private val peripheralManager: PeripheralManager) {
     private var messageBuffer: ArrayList<SignalMessage> = ArrayList()
 
     fun onTick(timeBegin: Float, timeEnd: Float) {
@@ -37,18 +37,22 @@ class SignalStreamParser(gpioStream: File, private val peripheralManager: Periph
         val toReturn: ArrayList<SignalMessage> = ArrayList(remnantsFromLastCall)
 
         // Keep reading new signals until we reach a point where the signal time is simply too high.
-        var currentMessage = SignalMessage.fromString(reader.readLine())
-        while (currentMessage.timestamp < timeEnd) {
-            toReturn.add(currentMessage)
-            currentMessage = SignalMessage.fromString(reader.readLine())
-        }
+        var currentLine = reader.readLine()
+        if (currentLine != null) {
+            var currentMessage = SignalMessage.fromString(currentLine)
+            while (currentMessage.timestamp < timeEnd) {
+                toReturn.add(currentMessage)
+                currentLine = reader.readLine()
+                if (currentLine == null) { break }
 
-        // Now, note that we have one dangling signal -- push him to the messageBuffer
-        messageBuffer.add(currentMessage)
+                currentMessage = SignalMessage.fromString(currentLine)
+            }
+            // Now, note that we have one dangling signal -- push him to the messageBuffer
+            messageBuffer.add(currentMessage)
+        }
 
         return toReturn.toTypedArray()
     }
-
 }
 
 class CocosSil : CliktCommand() {
@@ -63,42 +67,20 @@ class CocosSil : CliktCommand() {
     override fun run() {
         val peripheralManager = PeripheralManager(gpioStream)
         val coachbot = Coachbot(peripheralManager.gpio)
-        val signalParser = SignalStreamParser(gpioStream, peripheralManager)
-        val myTests = TestSuite(
-            cocosTest("Coachbot with only vel command moves from origin.", endingAt = 5.0F) {
-                withScript("""
-                def usr(bot):
-                    while True:
-                        bot.set_vel(100, 100)
-                        bot.set_led(100, 0, 0)
-                        bot.delay()
-            """.trimIndent())
-                ensure(at = 3.0F) {
-                    position {
-                        distanceFromOrigin(1F)
-                    }
-                    ledColor {
-                        appears(Color.RED)
-                    }
-                }
-                ensure(at = 4.0F) {
-                    ledColor { appears(Color.RED) }
-                }
-            },
-        )
+        gpioStream.bufferedReader().use {
+            val signalParser = SignalStreamParser(it, peripheralManager)
 
-        var tick = 0UL
-        while (tick < (MAX_TIME / TICK_SIZE).toULong()) {
-            val currentTime = tick.toFloat() / TICK_SIZE
-            val nextTime = (tick + 1UL).toFloat() / TICK_SIZE
-            val deltaTime = nextTime - currentTime
+            var tick = 0UL
+            while (tick < (MAX_TIME / TICK_SIZE).toULong()) {
+                val currentTime = tick.toFloat() * TICK_SIZE
+                val nextTime = (tick + 1UL).toFloat() * TICK_SIZE
+                val deltaTime = nextTime - currentTime
 
-            myTests.onTick(currentTime, coachbot)
+                signalParser.onTick(currentTime, nextTime)
+                coachbot.onTick(currentTime, deltaTime)
 
-            signalParser.onTick(currentTime, nextTime)
-            coachbot.onTick(currentTime, deltaTime)
-
-            tick += 1UL
+                tick += 1UL
+            }
         }
     }
 }
