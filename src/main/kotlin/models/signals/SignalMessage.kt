@@ -2,9 +2,15 @@ package models.signals
 
 import models.signals.gpio.GpioSignal
 
+/**
+ * Represents a signal message with data required to uniquely identify it. A signal message is effectively a signal
+ * associated with a fire timestamp and a string body.
+ *
+ * @author Marko Vejnovic <contact@markovejnovic.com>
+ */
 data class SignalMessage(val timestamp: Float, val signalType: SignalType, val rawBody: String) {
     /**
-     * Returns the signal, cast down to the correct type.
+     * The signal cast down to a correct type.
      */
     val signal: ISignal
         get() {

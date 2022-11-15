@@ -1,19 +1,28 @@
 package models.led
 
-import dev.romainguy.kotlin.math.Float3
+import models.Color
 import models.peripherals.gpio.GpioPeripheral
 
+/**
+ * Represents an LED attached to the Coachbot.
+ *
+ * Due to the fact that the LED is controlled via software PWM (so, GPIO), this model attempts to compensate for this
+ * by keeping a tally count of high GPIO signals and low GPIO signals and returning the brightness of each channel to be
+ * the ratio of the two.
+ *
+ * @author Marko Vejnovic <contact@markovejnovic.com>
+ */
 class LedModel(private val gpio: GpioPeripheral) {
-    var color = Float3(0F, 0F, 0F)
+    var color = Color(0F, 0F, 0F)
 
     // TODO: These might overflow for extremely high tick rates.
-    private var softwarePwmCompensators = mapOf<String, Array<ULong>>(
+    private var softwarePwmCompensators = mapOf(
         "PIN_R" to arrayOf(0UL, 0UL),
         "PIN_G" to arrayOf(0UL, 0UL),
         "PIN_B" to arrayOf(0UL, 0UL)
     )
 
-    fun onTick(currentTime: Float, deltaTime: Float) {
+    fun onTick(currentTime: Float, nextTime: Float) {
         // In order to update the color we need to fake color. Assuming a duty cycle of 100%, the color should be 255,
         // but as you will note here, we're not injecting a PWM driver -- software PWM is used. In order to emulate
         // the behavior of that:
@@ -34,9 +43,7 @@ class LedModel(private val gpio: GpioPeripheral) {
             return (countHigh.toFloat() / countTotal.toFloat())
         }
 
-        color[0] = calculateDc("PIN_R")
-        color[1] = calculateDc("PIN_G")
-        color[2] = calculateDc("PIN_B")
+        color = Color(calculateDc("PIN_R"), calculateDc("PIN_G"), calculateDc("PIN_B"))
     }
 
     companion object {
