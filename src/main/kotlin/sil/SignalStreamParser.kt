@@ -29,7 +29,7 @@ class SignalStreamParser(private val reader: BufferedReader, private val periphe
         // Keep reading new signals until we reach a point where the signal time is simply too high.
         var currentLine = reader.readLine()
         if (currentLine != null) {
-            var currentMessage = SignalMessage.fromString(currentLine)
+            var currentMessage = SignalMessage.fromString(currentLine.split(",", limit = 2)[1])
             while (currentMessage.timestamp < timeEnd) {
                 toReturn.add(currentMessage)
                 currentLine = reader.readLine()
