@@ -15,8 +15,8 @@ repositories {
 dependencies {
     implementation("org.slf4j:slf4j-simple:2.0.3")
     implementation("dev.romainguy:kotlin-math:1.5.2")
-    implementation("io.github.microutils:kotlin-logging-jvm:3.0.2")
     implementation("com.github.ajalt.clikt:clikt:3.5.0")
+    implementation("org.reflections:reflections:0.10.2")
     testImplementation(kotlin("test"))
 }
 

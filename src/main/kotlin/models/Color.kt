@@ -1,5 +1,6 @@
 package models
 
+import dev.romainguy.kotlin.math.Float3
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -52,9 +53,15 @@ class Color(val r: Float, val g: Float, val b: Float, val a: Float = 1.0F) {
             return Triple(hue, sat, cMax)
         }
 
+    override fun toString(): String = "Color($r, $g, $b)"
+
     companion object {
         val RED = Color(1F, 0F, 0F)
         val GREEN = Color(0F, 1F, 0F)
         val BLUE = Color(0F, 0F, 1F)
+
+        fun fromFloat3(vec: Float3): Color {
+            return Color(vec[0], vec[1], vec[2])
+        }
     }
 }

@@ -1,25 +1,26 @@
 package models
 
 import dev.romainguy.kotlin.math.Float2
-import dev.romainguy.kotlin.math.Float3
 import dev.romainguy.kotlin.math.PI
 import dev.romainguy.kotlin.math.times
 import models.led.LedModel
 import models.motor.MotorLeftModel
 import models.motor.MotorRightModel
+import models.peripherals.PeripheralManager
 import models.peripherals.gpio.GpioPeripheral
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-class Coachbot(private val gpioPeripheral: GpioPeripheral) {
-    private val leftMotorModel = MotorLeftModel(gpioPeripheral)
-    private val rightMotorModel = MotorRightModel(gpioPeripheral)
-    private val ledModel = LedModel(gpioPeripheral)
+class Coachbot(peripheralManager: PeripheralManager,
+               var posCenter: Float2 = Float2(0F, 0F),
+               var theta: Float = 0F
+) {
+    private val leftMotorModel = MotorLeftModel(peripheralManager.gpio)
+    private val rightMotorModel = MotorRightModel(peripheralManager.gpio)
+    private val ledModel = LedModel(peripheralManager.gpio)
 
-    var posCenter = Float2(0F, 0F)
-    var theta = 0F
-    val ledColor: Float3 get() = ledModel.color
+    val ledColor: Color get() = ledModel.color
 
     fun onTick(currentTime: Float, deltaTime: Float) {
         val leftMotorDeltaMeters = getWheelStep(leftMotorModel.onTick(currentTime, deltaTime))
@@ -29,6 +30,8 @@ class Coachbot(private val gpioPeripheral: GpioPeripheral) {
 
         updatePositionTick(leftMotorDeltaMeters, rightMotorDeltaMeters)
     }
+
+    override fun toString(): String = "Coachbot(Pos=${posCenter}, Angle=${theta}, LED=${ledColor})"
 
     companion object {
         const val COACHBOT_RADIUS: Float = 2E-2F
