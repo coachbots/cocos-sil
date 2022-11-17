@@ -26,6 +26,58 @@ def run_tests(tick):
         run_my_test_on_tick_32()
 ```
 
+## Releases
+
+This repository has integrated CI/CD so that releases are automatically built. Tags marked by the glob `v*.*.*` (see 
+Versioning) will automatically get built, producing a [fat-jar](https://imagej.net/develop/uber-jars) and releasing it
+under github releases. If you only want to use this repository, simply fetch the release `jar` you are interested in and
+run it on a JVM.
+
+## Versioning
+
+This repository uses [semver](https://semver.org/):
+```text
+<MAJOR>.<MINOR>.<PATCH>
+```
+`<MAJOR>` bumps indicate an API-breaking change, meaning that `v<n+1>.*.*` releases are not compatible with `v<n>.*.*`
+releases. `<MINOR>` bumps indicate backward-supporting feature additions and `<PATCH>` bumps indicate bugfixes which are
+necessarily backwards compatible.
+
+## Developing
+
+### Getting Started
+
+Developing for this repository is relatively easy. To get you started:
+```shell
+git clone git@github.com:coachbots/cocos-sil.git
+cd cocos-sil
+./gradlew build --debug
+```
+
+This will clone the repository and build it with `gradle`.
+
+### Developing Features
+
+If you wish to develop features, please create a new branch which will be attached to an issue. If, for example, there
+is an issue `1`, consider labelling your branch something like:
+
+```shell
+git checkout -b user/<myusername>/1-fix-broken-sil
+```
+
+When you wish to integrate this into `master` (which is the stable release branch), target `master`, increasing the
+version number, squashing and merging. Please ensure your commit message contains the issue number so that it is easier
+to reference the relevant issue. Upon successful merge, do not forget to apply a new tag:
+
+```shell
+git checkout master
+git pull
+git tag -a v1.1.3 -m "Release Message"
+git push origin v1.1.3
+```
+
+This will automatically trigger the release CI/CD action which will create a release for you.
+
 ## Defense
 
 I deem it necessary to have a decent, stable and robust system. SIL testing aids in ensuring that firmware never
