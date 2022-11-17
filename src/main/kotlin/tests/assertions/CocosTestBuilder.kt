@@ -5,7 +5,7 @@ import models.peripherals.PeripheralManager
 
 class CocosTestBuilder(val name: String, val description: String, val endingAt: Float) {
     private val testRequirements: ArrayList<Pair<Float, CocosTestRequirementsBuilder>> = ArrayList()
-    private var targetScript: String? = null
+    var targetScript: String? = null
     var coachbotInitializer: (PeripheralManager) -> Coachbot = { peripheralManager -> Coachbot(peripheralManager) }
 
     companion object {
