@@ -1,5 +1,9 @@
 name: "Create Release Build"
-on: push
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
 jobs:
   gradle:
     strategy:
